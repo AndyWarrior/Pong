@@ -29,3 +29,52 @@ textScore1.alpha = 0.5
 textScore2.alpha = 0.5
 
 ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
+
+
+function movePlayer1( event )
+    if event.phase == "began" then
+	
+        markY = player1.y    -- store y location of object
+	
+    elseif event.phase == "moved" then
+	
+        local y = (event.y - event.yStart) + markY
+        
+        player1.y = y    -- move object based on calculations above
+    end
+    
+    return true
+end
+
+function movePlayer2( event )
+    if event.phase == "began" then
+	
+        mark2Y = player2.y    -- store y location of object
+	
+    elseif event.phase == "moved" then
+	
+        local y = (event.y - event.yStart) + mark2Y
+        
+        player2.y = y    -- move object based on calculations above
+    end
+    
+    return true
+end
+
+function updateGame ( event )
+	if player1.y + player1.height/2 > bottomY then
+		player1.y = bottomY - player1.height/2
+	elseif player1.y - player1.height/2 < topY then
+		player1.y = topY + player1.height/2
+	end
+	
+	if player2.y + player2.height/2 > bottomY then
+		player2.y = bottomY - player2.height/2
+	elseif player2.y - player2.height/2 < topY then
+		player2.y = topY + player2.height/2
+	end
+end
+
+player1:addEventListener("touch", movePlayer1)
+player2:addEventListener("touch", movePlayer2)
+Runtime:addEventListener("enterFrame",updateGame)
