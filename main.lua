@@ -7,3 +7,5 @@ local screenH = bottomY - topY --Numerical value for the height of the screen
 
 player1 = display.newRect(leftX, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
 player2 = display.newRect(rightX - screenW/20, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
+
+ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
