@@ -7,29 +7,58 @@ local leftX = display.screenOriginX --Numerical value for the left of the screen
 local screenW = rightX - leftX --Numerical value for the width of the screen
 local screenH = bottomY - topY --Numerical value for the height of the screen
 
-score1 = 0
-score2 = 0
 
-player1 = display.newRect(leftX, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
-player2 = display.newRect(rightX - screenW/20, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
+function startGame()
+	score1 = 0
+	score2 = 0
+	maxScore = 10
 
-topLine = display.newLine(leftX + screenW/20, topY, rightX - screenW/20, topY)
-topLine.width = screenH/10
+	direction = 1
+	speed = 2
 
-bottomLine = display.newLine(leftX + screenW/20, bottomY, rightX - screenW/20, bottomY)
-bottomLine.width = screenH/10
+	hitplayer1 = false
+	hitplayer2 = false
 
-middleLine = display.newLine(leftX + screenW/2, topY, leftX + screenW/2, bottomY)
-middleLine.width = screenH/40
+	player1 = display.newRect(leftX, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
+	player2 = display.newRect(rightX - screenW/20, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
 
-textScore1 = display.newText( score1, leftX + screenW/2 - screenW/5, topY + screenH/7, native.systemFont, 100 )
-textScore2 = display.newText( score2, leftX + screenW/2 + screenW/10, topY + screenH/7, native.systemFont, 100 )
+	topLine = display.newLine(leftX + screenW/20, topY, rightX - screenW/20, topY)
+	topLine.width = screenH/10
 
-textScore1.alpha = 0.5
-textScore2.alpha = 0.5
+	bottomLine = display.newLine(leftX + screenW/20, bottomY, rightX - screenW/20, bottomY)
+	bottomLine.width = screenH/10
 
-ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
+	middleLine = display.newLine(leftX + screenW/2, topY, leftX + screenW/2, bottomY)
+	middleLine.width = screenH/40
 
+	textScore1 = display.newText( score1, leftX + screenW/2 - screenW/5, topY + screenH/7, native.systemFont, 100 )
+	textScore2 = display.newText( score2, leftX + screenW/2 + screenW/10, topY + screenH/7, native.systemFont, 100 )
+
+	textScore1.alpha = 0.5
+	textScore2.alpha = 0.5
+
+	ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
+	
+	player1:addEventListener("touch", movePlayer1)
+	player2:addEventListener("touch", movePlayer2)
+	Runtime:addEventListener("enterFrame",updateGame)
+end
+
+function updateGame(event)
+	checkCollisions()
+	moveBall()
+	updateScore()
+end
+
+function updateScore()
+	if score1 >= maxScore or score2 >= maxScore then
+		score1 = 0
+		score2 = 0
+	end
+	
+	textScore1.text = score1
+	textScore2.text = score2
+end
 
 function movePlayer1( event )
     if event.phase == "began" then
@@ -61,7 +90,23 @@ function movePlayer2( event )
     return true
 end
 
-function updateGame ( event )
+function moveBall()
+	if direction == 1 then
+		ball.x = ball.x + speed
+		ball.y = ball.y - speed
+	elseif direction == 2 then
+		ball.x = ball.x - speed
+		ball.y = ball.y - speed
+	elseif direction == 3 then
+		ball.x = ball.x - speed
+		ball.y = ball.y + speed
+	elseif direction == 4 then
+		ball.x = ball.x + speed
+		ball.y = ball.y + speed
+	end
+end
+
+function checkCollisions()
 	if player1.y + player1.height/2 > bottomY then
 		player1.y = bottomY - player1.height/2
 	elseif player1.y - player1.height/2 < topY then
@@ -73,8 +118,81 @@ function updateGame ( event )
 	elseif player2.y - player2.height/2 < topY then
 		player2.y = topY + player2.height/2
 	end
+	
+	if ball.y + screenW/40 < topLine.y + screenH/10 then
+		if direction == 1 then
+			direction = 4
+		elseif direction == 2 then
+			direction = 3
+		end
+	elseif ball.y + screenW/40 > bottomLine.y - screenH/20 then
+		if direction == 3 then
+			direction = 2
+		elseif direction == 4 then
+			direction = 1
+		end
+	end
+	
+	if (inside(ball,player1) and hitplayer1 == false) then
+		hitplayer1 = true
+		hitplayer2 = false
+		speed = speed + 1
+		if direction == 2 then
+			direction = 1
+		elseif direction == 3 then
+			direction = 4
+		end
+	elseif (inside(ball,player2) and hitplayer2 == false) then
+		hitplayer2 = true
+		hitplayer1 = false
+		speed = speed + 1
+		if direction == 1 then
+			direction = 2
+		elseif direction == 4 then
+			direction = 3
+		end
+	end
+	
+	if ball.x < leftX then
+		score2 = score2 + 1
+		resetGame(2)
+	elseif ball.x > rightX then
+		score1 = score1 + 1
+		resetGame(1)
+	end
 end
 
-player1:addEventListener("touch", movePlayer1)
-player2:addEventListener("touch", movePlayer2)
-Runtime:addEventListener("enterFrame",updateGame)
+function resetBall()
+	ball.x = leftX + screenW/2
+	ball.y = topY + screenH/2
+end
+
+function resetGame(n)
+	local z = math.random(1,2)
+	if n == 1 then
+		if z == 1 then
+			direction = 2
+		elseif z == 2 then
+			direction = 3
+		end
+	elseif n == 2 then
+		if z == 1 then
+			direction = 1
+		elseif z == 2 then
+			direction = 4
+		end
+	end
+	resetBall()
+	speed = 2
+	hitplayer1 = false
+	hitplayer2 = false
+end
+
+function inside(obj1, obj2)
+        return obj1.contentBounds.xMin < obj2.contentBounds.xMax
+                and obj1.contentBounds.xMax > obj2.contentBounds.xMin
+                and obj1.contentBounds.yMin < obj2.contentBounds.yMax
+                and obj1.contentBounds.yMax > obj2.contentBounds.yMin
+end
+
+startGame()
