@@ -1,5 +1,7 @@
 display.setStatusBar( display.HiddenStatusBar )
 
+system.activate("multitouch")
+
 local topY = display.screenOriginY --Numerical value for the top of the screen
 local rightX = display.contentWidth - display.screenOriginX --Numerical value for the right of the screen
 local bottomY = display.contentHeight - display.screenOriginY --Numerical value for the bottom of the screen
