@@ -20,6 +20,9 @@ function startGame()
 
 	hitplayer1 = false
 	hitplayer2 = false
+	
+	allow1 = false
+	allow2 = false
 
 	player1 = display.newRect(leftX, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
 	player2 = display.newRect(rightX - screenW/20, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
@@ -41,8 +44,8 @@ function startGame()
 
 	ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
 	
-	player1:addEventListener("touch", movePlayer1)
-	player2:addEventListener("touch", movePlayer2)
+	Runtime:addEventListener("touch", move1)
+	Runtime:addEventListener("touch", move2)
 	Runtime:addEventListener("enterFrame",updateGame)
 end
 
@@ -62,31 +65,39 @@ function updateScore()
 	textScore2.text = score2
 end
 
-function movePlayer1( event )
-    if event.phase == "began" then
+function move1( event )
+    if event.phase == "began" and event.x < screenW/2 and event.y > player1.y - screenH/10 and event.y < player1.y + screenH/10 then
 	
         markY = player1.y    -- store y location of object
-	
-    elseif event.phase == "moved" then
+		allow1 = true
+	end
+    if allow1 == true and event.x < screenW/2 then
 	
         local y = (event.y - event.yStart) + markY
         
         player1.y = y    -- move object based on calculations above
+	end
+	if event.phase == "ended" then
+		allow1 = false
     end
     
     return true
 end
 
-function movePlayer2( event )
-    if event.phase == "began" then
+function move2( event )
+    if event.phase == "began" and event.x > screenW/2 and event.y > player2.y - screenH/10 and event.y < player2.y + screenH/10 then
 	
         mark2Y = player2.y    -- store y location of object
-	
-    elseif event.phase == "moved" then
+		allow2 = true
+	end
+    if allow2 == true and event.x > screenW/2 then
 	
         local y = (event.y - event.yStart) + mark2Y
         
         player2.y = y    -- move object based on calculations above
+	end
+	if event.phase == "ended" then
+		allow2 = false
     end
     
     return true
