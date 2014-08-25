@@ -23,6 +23,8 @@ function startGame()
 	
 	allow1 = false
 	allow2 = false
+	
+	singleplayer = false
 
 	player1 = display.newRect(leftX, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
 	player2 = display.newRect(rightX - screenW/20, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
@@ -45,7 +47,10 @@ function startGame()
 	ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
 	
 	Runtime:addEventListener("touch", move1)
-	Runtime:addEventListener("touch", move2)
+	if singleplayer==false then
+		Runtime:addEventListener("touch", move2)
+	else Runtime:addEventListener("enterFrame", cpumove)
+	end
 	Runtime:addEventListener("enterFrame",updateGame)
 end
 
@@ -101,6 +106,14 @@ function move2( event )
     end
     
     return true
+end
+
+function cpumove()
+	if ball.y > player2.y then
+		player2.y = player2.y + speed
+	elseif ball.y < player2.y then
+		player2.y = player2.y - speed
+	end
 end
 
 function moveBall()
