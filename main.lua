@@ -77,7 +77,7 @@ function move1( event )
         
         player1.y = y    -- move object based on calculations above
 	end
-	if event.phase == "ended" then
+	if event.phase == "ended" and event.x < screenW/2 then
 		allow1 = false
     end
     
@@ -96,7 +96,7 @@ function move2( event )
         
         player2.y = y    -- move object based on calculations above
 	end
-	if event.phase == "ended" then
+	if event.phase == "ended" and event.x > screenW/2 then
 		allow2 = false
     end
     
