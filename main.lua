@@ -25,6 +25,7 @@ function startGame()
 	allow2 = false
 	
 	singleplayer = false
+	gameover = false
 
 	player1 = display.newRect(leftX, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
 	player2 = display.newRect(rightX - screenW/20, topY + screenH/2 - screenH/10, screenW/20, screenH/5)
@@ -43,15 +44,13 @@ function startGame()
 
 	textScore1.alpha = 0.5
 	textScore2.alpha = 0.5
+	
+	option1 = display.newText( "1 Player", leftX + screenW/10, textScore1.y + screenH/5, native.systemFont, 36 )
+	option2 = display.newText( "2 Players", leftX + screenW/2 + screenW/20, textScore2.y + screenH/5 , native.systemFont, 36 )
 
 	ball = display.newCircle(leftX + screenW/2, topY + screenH/2, screenW/40)
 	
-	Runtime:addEventListener("touch", move1)
-	if singleplayer==false then
-		Runtime:addEventListener("touch", move2)
-	else Runtime:addEventListener("enterFrame", cpumove)
-	end
-	Runtime:addEventListener("enterFrame",updateGame)
+	Runtime:addEventListener("touch", selectOption)
 end
 
 function updateGame(event)
@@ -181,9 +180,15 @@ function checkCollisions()
 	
 	if ball.x < leftX then
 		score2 = score2 + 1
+		if score1 >= maxScore or score2 >= maxScore then
+			gameover = true
+		end
 		resetGame(2)
 	elseif ball.x > rightX then
 		score1 = score1 + 1
+		if score1 >= maxScore or score2 >= maxScore then
+			gameover = true
+		end
 		resetGame(1)
 	end
 end
@@ -191,6 +196,11 @@ end
 function resetBall()
 	ball.x = leftX + screenW/2
 	ball.y = topY + screenH/2
+end
+
+function resetPlayers()
+	player1.y = topY + screenH/2
+	player2.y = topY + screenH/2
 end
 
 function resetGame(n)
@@ -212,6 +222,18 @@ function resetGame(n)
 	speed = 2
 	hitplayer1 = false
 	hitplayer2 = false
+	if gameover == true then
+		resetPlayers()
+		Runtime:removeEventListener("touch", move1)
+		if singleplayer==false then
+			Runtime:removeEventListener("touch", move2)
+		else Runtime:removeEventListener("enterFrame", cpumove)
+		end
+		Runtime:removeEventListener("enterFrame",updateGame)
+		Runtime:addEventListener("touch",selectOption)
+		option1 = display.newText( "1 Player", leftX + screenW/10, textScore1.y + screenH/5, native.systemFont, 36 )
+		option2 = display.newText( "2 Players", leftX + screenW/2 + screenW/20, textScore2.y + screenH/5 , native.systemFont, 36 )
+	end
 end
 
 function inside(obj1, obj2)
@@ -219,6 +241,27 @@ function inside(obj1, obj2)
                 and obj1.contentBounds.xMax > obj2.contentBounds.xMin
                 and obj1.contentBounds.yMin < obj2.contentBounds.yMax
                 and obj1.contentBounds.yMax > obj2.contentBounds.yMin
+end
+
+function selectOption(event)
+	if event.x < screenW/2 then
+		singleplayer = true
+	elseif event.x > screenW/2 then
+		singleplayer = false
+	end
+	
+	Runtime:addEventListener("touch", move1)
+	if singleplayer==false then
+		Runtime:addEventListener("touch", move2)
+	else Runtime:addEventListener("enterFrame", cpumove)
+	end
+	Runtime:addEventListener("enterFrame",updateGame)
+	Runtime:removeEventListener("touch",selectOption)
+	gameover = false
+	option1:removeSelf()
+	option1 = nil
+	option2:removeSelf()
+	option2 = nil
 end
 
 startGame()
